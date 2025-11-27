@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:prob_lfi1/ci_screen.dart';
 import 'package:prob_lfi1/classical_screen.dart';
 import 'package:prob_lfi1/every_screen.dart';
+import 'package:prob_lfi1/letk_plus_screen.dart';
 import 'package:prob_lfi1/lfi1_screen.dart';
 
 void main() {
@@ -58,6 +60,17 @@ class MainMenuScreen extends StatelessWidget {
                 );
               },
               child: const Text('LFI1'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LetkPlusScreen()),
+                );
+              },
+              child: Math.tex(r'LET^{+}_K'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

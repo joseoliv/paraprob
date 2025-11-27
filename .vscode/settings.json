@@ -1,0 +1,9 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "workbench.colorTheme": "Brackets Light Pro",
+    // "workbench.colorTheme": "Solarized Light",
+// "workbench.colorCustomizations": {
+//     "editor.background": "#f5ecd1" // Hover over the color code here to see the picker
+// }
+
+}

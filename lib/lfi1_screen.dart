@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/services.dart';
 import 'package:prob_lfi1/common_lib.dart';
 import 'package:prob_lfi1/fraction.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 const String lfi1Filename = 'C:\\Users\\josed\\Downloads\\probSum_lfi1.txt';
 
@@ -44,6 +46,10 @@ class _LFI1ScreenState extends State<LFI1Screen> {
   (int, int) _prCNotAB = (0, 1);
   (int, int) _prCNotBA = (0, 1);
   (int, int) _prNotAandB = (0, 1);
+
+  (int, int) _prANotBNotC = (0, 1);
+  (int, int) _prNotBNotC = (0, 1);
+  (int, int) _prABNotC = (0, 1);
 
   /// text of the form
   /// A : (0, 0, 0) : 1459/2000
@@ -126,6 +132,24 @@ class _LFI1ScreenState extends State<LFI1Screen> {
 
   // --- Helper Functions ---
 
+  String getPlatform() {
+    if (kIsWeb) {
+      return 'Web';
+    } else if (Platform.isAndroid) {
+      return 'Android';
+    } else if (Platform.isWindows) {
+      return 'Windows';
+    } else if (Platform.isIOS) {
+      return 'iOS';
+    } else if (Platform.isMacOS) {
+      return 'macOS';
+    } else if (Platform.isLinux) {
+      return 'Linux';
+    } else {
+      return 'Unknown';
+    }
+  }
+
   (int, int) _parseFraction(String text, int index) {
     try {
       return parseFraction(text, index);
@@ -141,7 +165,10 @@ class _LFI1ScreenState extends State<LFI1Screen> {
   // --- Calculation Logic ---
   void _calculateAndDisplayProbabilities() {
     // delete a file named 'C:\Users\josed\Downloads\probSum_lfi1.txt'
-    File(lfi1Filename).delete();
+    // only if the platform is Windows
+    if (getPlatform() == 'Windows') {
+      File(lfi1Filename).delete();
+    }
 
     // 1. Parse all TextField values and store them in _probValues
     List<String> textField =
@@ -155,22 +182,6 @@ class _LFI1ScreenState extends State<LFI1Screen> {
     }
 
     // Initialize sums
-    (int, int) tempPrA = (0, 1);
-    (int, int) tempPrB = (0, 1);
-    (int, int) tempPrC = (0, 1);
-    (int, int) tempPrAB = (0, 1);
-    (int, int) tempPrAC = (0, 1);
-    (int, int) tempPrBC = (0, 1);
-    (int, int) tempPrABC = (0, 1);
-    (int, int) tempSum = (0, 1);
-
-    (int, int) tmpPrNotA = (0, 1);
-    (int, int) tmpPrNotB = (0, 1);
-    (int, int) tmpPrNotC = (0, 1); // New variable for not C
-    (int, int) tmpPrCNotA = (0, 1);
-    (int, int) tmpPrCNotB = (0, 1);
-    (int, int) tmpPrANotC = (0, 1);
-    (int, int) tmpPrBNotC = (0, 1);
 
     _prA = (0, 1);
     _prB = (0, 1);
@@ -182,6 +193,7 @@ class _LFI1ScreenState extends State<LFI1Screen> {
     _prSum = (0, 1);
     _prNotA = (0, 1);
     _prNotB = (0, 1);
+    _prNotC = (0, 1);
     _prCNotA = (0, 1);
     _prCNotB = (0, 1);
     _prANotC = (0, 1);
@@ -192,6 +204,10 @@ class _LFI1ScreenState extends State<LFI1Screen> {
     _prCNotAB = (0, 1);
     _prCNotBA = (0, 1);
     _prNotAandB = (0, 1);
+
+    _prANotBNotC = (0, 1);
+    _prNotBNotC = (0, 1);
+    _prABNotC = (0, 1);
 
     _sumText = '';
 
@@ -212,7 +228,7 @@ class _LFI1ScreenState extends State<LFI1Screen> {
             continue; // Skip zero probabilities
           }
 
-          tempSum = addFractions(tempSum, currentProb);
+          _prSum = addFractions(_prSum, currentProb);
           bool aIsHalfOrOne = xIdx >= 1; // "1/2" or "1"
           bool bIsHalfOrOne = yIdx >= 1; // "1/2" or "1"
           bool cIsHalfOrOne = zIdx >= 1; // "1/2" or "1"
@@ -222,86 +238,85 @@ class _LFI1ScreenState extends State<LFI1Screen> {
 
           // A
           if (aIsHalfOrOne) {
-            tempPrA = addFractions(tempPrA, currentProb);
-            print(textField[flatIndex]);
+            _prA = addFractions(_prA, currentProb);
             _sumText +=
                 'A : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // B
           if (bIsHalfOrOne) {
-            tempPrB = addFractions(tempPrB, currentProb);
+            _prB = addFractions(_prB, currentProb);
             _sumText +=
                 'B : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // C
           if (cIsHalfOrOne) {
-            tempPrC = addFractions(tempPrC, currentProb);
+            _prC = addFractions(_prC, currentProb);
             _sumText +=
                 'C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // A&B
           if (aIsHalfOrOne && bIsHalfOrOne) {
-            tempPrAB = addFractions(tempPrAB, currentProb);
+            _prAB = addFractions(_prAB, currentProb);
             _sumText +=
                 'A&B : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // A&C
           if (aIsHalfOrOne && cIsHalfOrOne) {
-            tempPrAC = addFractions(tempPrAC, currentProb);
+            _prAC = addFractions(_prAC, currentProb);
             _sumText +=
                 'A&C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // B&C
           if (bIsHalfOrOne && cIsHalfOrOne) {
-            tempPrBC = addFractions(tempPrBC, currentProb);
+            _prBC = addFractions(_prBC, currentProb);
             _sumText +=
                 'B&C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // A&B&C
           if (aIsHalfOrOne && bIsHalfOrOne && cIsHalfOrOne) {
-            tempPrABC = addFractions(tempPrABC, currentProb);
+            _prABC = addFractions(_prABC, currentProb);
             _sumText +=
                 'A&B&C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // ~A
           if (aIsHalfOrZero) {
-            tmpPrNotA = addFractions(tmpPrNotA, currentProb);
+            _prNotA = addFractions(_prNotA, currentProb);
             _sumText +=
                 '~A : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // ~B
           if (bIsHalfOrZero) {
-            tmpPrNotB = addFractions(tmpPrNotB, currentProb);
+            _prNotB = addFractions(_prNotB, currentProb);
             _sumText +=
                 '~B : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // ~C
           if (cIsHalfOrZero) {
-            tmpPrNotC = addFractions(tmpPrNotC, currentProb);
+            _prNotC = addFractions(_prNotC, currentProb);
             _sumText +=
                 '~C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // C&~A
           if (cIsHalfOrOne && aIsHalfOrZero) {
-            tmpPrCNotA = addFractions(tmpPrCNotA, currentProb);
+            _prCNotA = addFractions(_prCNotA, currentProb);
             _sumText +=
                 'C&~A : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // C&~B
           if (cIsHalfOrOne && bIsHalfOrZero) {
-            tmpPrCNotB = addFractions(tmpPrCNotB, currentProb);
+            _prCNotB = addFractions(_prCNotB, currentProb);
             _sumText +=
                 'C&~B : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // ~C&A
           if (cIsHalfOrZero && aIsHalfOrOne) {
-            tmpPrANotC = addFractions(tmpPrANotC, currentProb);
+            _prANotC = addFractions(_prANotC, currentProb);
             _sumText +=
                 '~C&A : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
           // B&~C
           if (bIsHalfOrOne && cIsHalfOrZero) {
-            tmpPrBNotC = addFractions(tmpPrBNotC, currentProb);
+            _prBNotC = addFractions(_prBNotC, currentProb);
             _sumText +=
                 'B&~C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
@@ -341,28 +356,30 @@ class _LFI1ScreenState extends State<LFI1Screen> {
             _sumText +=
                 'C&~B&A : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
           }
+          // A & ~B & ~C
+          if (aIsHalfOrOne && bIsHalfOrZero && cIsHalfOrZero) {
+            _prANotBNotC = addFractions(_prANotBNotC, currentProb);
+            _sumText +=
+                'A&~B&~C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
+          }
+          // ~B & ~C
+          if (bIsHalfOrZero && cIsHalfOrZero) {
+            _prNotBNotC = addFractions(_prNotBNotC, currentProb);
+            _sumText +=
+                '~B&~C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
+          }
+          // A & B & ~C
+          if (aIsHalfOrOne && bIsHalfOrOne && cIsHalfOrZero) {
+            _prABNotC = addFractions(_prABNotC, currentProb);
+            _sumText +=
+                'A&B&~C : (${intToTruthValue(xIdx)}, ${intToTruthValue(yIdx)}, ${intToTruthValue(zIdx)}) : ${textField[flatIndex]}\n';
+          }
         }
       }
     }
 
     // Update state to re-render the UI
-    setState(() {
-      _prA = tempPrA;
-      _prB = tempPrB;
-      _prC = tempPrC;
-      _prAB = tempPrAB;
-      _prAC = tempPrAC;
-      _prBC = tempPrBC;
-      _prABC = tempPrABC;
-      _prSum = tempSum;
-      _prNotA = tmpPrNotA;
-      _prNotB = tmpPrNotB;
-      _prNotC = tmpPrNotC;
-      _prCNotA = tmpPrCNotA;
-      _prCNotB = tmpPrCNotB;
-      _prANotC = tmpPrANotC;
-      _prBNotC = tmpPrBNotC;
-    });
+    setState(() {});
 
     /// Generate the probability sum text as
     ///    Pr(A) = 127/2000 + 1459/2000
@@ -379,8 +396,11 @@ class _LFI1ScreenState extends State<LFI1Screen> {
     }).join('\n');
 
     /// Save _sumText and then _probSumText to lfi1Filename, put \n\n##############\n\n between them
-    File(lfi1Filename)
-        .writeAsStringSync('$_sumText\n\n##############\n\n$_probSumText');
+    if (getPlatform() == 'Windows') {
+      File(lfi1Filename)
+          .writeAsStringSync('$_sumText\n\n##############\n\n$_probSumText');
+    }
+    //    .writeAsStringSync('$_sumText\n\n##############\n\n$_probSumText');
   }
 
   // --- UI Building ---
@@ -481,11 +501,17 @@ class _LFI1ScreenState extends State<LFI1Screen> {
                           case 'Reset':
                             _reset();
                             break;
-                          case 'Reset PI':
+                          case 'PI':
                             _resetPI();
                             break;
-                          case 'Reset BCT':
+                          case 'BCT':
                             _resetBCT();
+                            break;
+                          case 'Raven':
+                            _resetRaven();
+                            break;
+                          case 'Miracle':
+                            _resetMiracle();
                             break;
                         }
                         _selectedResetOption = null;
@@ -503,22 +529,47 @@ class _LFI1ScreenState extends State<LFI1Screen> {
                         ),
                       ),
                       DropdownMenuItem(
-                        value: 'Reset PI',
+                        value: 'PI',
                         child: Row(
                           children: const [
                             Icon(Icons.calculate, size: 20),
                             SizedBox(width: 8),
-                            SelText('Reset PI'),
+                            SelText('PI'),
                           ],
                         ),
                       ),
                       DropdownMenuItem(
-                        value: 'Reset BCT',
+                        value: 'BCT',
                         child: Row(
                           children: const [
                             Icon(Icons.settings_backup_restore, size: 20),
                             SizedBox(width: 8),
-                            SelText('Reset BCT'),
+                            SelText('BCT'),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Raven',
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/icons/raven-aistudio.png',
+                              width: 30,
+                              height: 30,
+                            ),
+                            SizedBox(width: 8),
+                            SelText('Raven'),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Miracle',
+                        child: Row(
+                          children: [
+                            FaIcon(FontAwesomeIcons.wandMagic,
+                                size: 20, color: Colors.red),
+                            SizedBox(width: 8),
+                            SelText('Miracle'),
                           ],
                         ),
                       ),
@@ -567,6 +618,9 @@ class _LFI1ScreenState extends State<LFI1Screen> {
             prCNotAB: _prCNotAB,
             prCNotBA: _prCNotBA,
             prNotAandB: _prNotAandB,
+            prANotBNotC: _prANotBNotC,
+            prNotBNotC: _prNotBNotC,
+            prABNotC: _prABNotC,
             prSum: _prSum,
           )),
         ],
@@ -577,7 +631,7 @@ class _LFI1ScreenState extends State<LFI1Screen> {
   void _resetPI() {
     setState(() {
       _initializeProbabilities(
-        /*
+          /*
 
  0   0   0    1459/2000
  0   0  1/2	   161/2000
@@ -590,47 +644,47 @@ class _LFI1ScreenState extends State<LFI1Screen> {
 
         */
 
-       initialMap: {          
-        0: [(1459, 2000)],
-        1: [(161, 2000)],
-        3: [(161, 2000)],
-        4: [(19, 2000)],
-        9: [(161, 2000)],
-        10: [(19, 2000)],
-        12: [(19, 2000)],
-        13: [(1, 2000)],
-       }
-      //   initialValues: [
-      //   (1459, 2000),
-      //   (150, 2000),
-      //   (11, 2000),
-      //   (101, 2000),
-      //   (0, 1),
-      //   (0, 1),
-      //   (60, 2000),
-      //   (0, 1),
-      //   (19, 2000),
-      //   (101, 2000),
-      //   (0, 1),
-      //   (0, 1),
-      //   (0, 1),
-      //   (0, 1),
-      //   (0, 1),
-      //   (0, 1),
-      //   (0, 1),
-      //   (0, 1),
-      //   (60, 2000),
-      //   (0, 1),
-      //   (19, 2000),
-      //   (0, 1),
-      //   (0, 1),
-      //   (0, 1),
-      //   (19, 2000),
-      //   (0, 1),
-      //   (1, 2000)
-      // ]
-      
-      );
+          initialMap: {
+            0: [(1459, 2000)],
+            1: [(161, 2000)],
+            3: [(161, 2000)],
+            4: [(19, 2000)],
+            9: [(161, 2000)],
+            10: [(19, 2000)],
+            12: [(19, 2000)],
+            13: [(1, 2000)],
+          }
+          //   initialValues: [
+          //   (1459, 2000),
+          //   (150, 2000),
+          //   (11, 2000),
+          //   (101, 2000),
+          //   (0, 1),
+          //   (0, 1),
+          //   (60, 2000),
+          //   (0, 1),
+          //   (19, 2000),
+          //   (101, 2000),
+          //   (0, 1),
+          //   (0, 1),
+          //   (0, 1),
+          //   (0, 1),
+          //   (0, 1),
+          //   (0, 1),
+          //   (0, 1),
+          //   (0, 1),
+          //   (60, 2000),
+          //   (0, 1),
+          //   (19, 2000),
+          //   (0, 1),
+          //   (0, 1),
+          //   (0, 1),
+          //   (19, 2000),
+          //   (0, 1),
+          //   (1, 2000)
+          // ]
+
+          );
 
       _calculateAndDisplayProbabilities();
     });
@@ -650,7 +704,6 @@ class _LFI1ScreenState extends State<LFI1Screen> {
 26: 669      
       */
       initialMap: {
-
 /*
  0   0   0     835/5120
  0   0  1/2	   125/5120
@@ -661,13 +714,13 @@ class _LFI1ScreenState extends State<LFI1Screen> {
 1/2 1/2 1/2     796/5120
 
 */
-0: [(835, 5120)],
-1: [(125, 5120)],
-3: [(1341, 5120)],
-8: [(1539, 5120)],
-9: [(193, 5120)],
-12: [(291, 5120)],
-13: [(796, 5120)],
+        0: [(835, 5120)],
+        1: [(125, 5120)],
+        3: [(1341, 5120)],
+        8: [(1539, 5120)],
+        9: [(193, 5120)],
+        12: [(291, 5120)],
+        13: [(796, 5120)],
         // 0: [(835, 5120)],
         // 2: [(125, 5120)],
         // 6: [(1341, 5120)],
@@ -680,6 +733,65 @@ class _LFI1ScreenState extends State<LFI1Screen> {
       },
     );
     _calculateAndDisplayProbabilities();
+  }
+
+  void _resetRaven() {
+    _initializeProbabilities(initialMap: {
+      0: [(1000, 2650)],
+
+      ///  0   0  0
+      1: [(88, 2650)],
+
+      ///  0   0 1/2
+      3: [(36, 2650)],
+
+      ///  0  1/2  0
+      4: [(138, 2650)],
+
+      ///  0  1/2 1/2
+      9: [(181, 2650)],
+
+      /// 1/2  0   0
+      10: [(0, 2650)],
+
+      /// 1/2  0  1/2
+      12: [(52, 2650)],
+
+      /// 1/2 1/2  0
+      13: [(215, 2650)],
+
+      /// 1/2 1/2 1/2
+      26: [(940, 2650)],
+
+      ///  1   1   1
+    });
+
+    _calculateAndDisplayProbabilities();
+    setState(() {});
+  }
+
+  void _resetMiracle() {
+    // 0  0   6033/8192
+    // 0  1      1/64
+    // 1  0   1007/8192
+    // 1  1      1/8
+    _initializeProbabilities(initialMap: {
+      // 0  0   6033/8192
+
+      0: [(6033, 8192)],
+
+      // 0  1      1/64
+      3: [(128, 8192)],
+
+      // 1  0   1007/8192
+      9: [(1007, 8192)],
+
+      // 1  1      1/8
+      12: [(1024, 8192)],
+    });
+
+    _calculateAndDisplayProbabilities();
+    setState(() {});
   }
 
   void _reset() {

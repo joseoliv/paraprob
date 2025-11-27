@@ -51,6 +51,9 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
   (int, int) _prCNotAB = (0, 1);
   (int, int) _prCNotBA = (0, 1);
   (int, int) _prNotAandB = (0, 1);
+  (int, int) _prANotBNotC = (0, 1);
+  (int, int) _prNotBNotC = (0, 1);
+  (int, int) _prABNotC = (0, 1);
 
   String _prANumeratorSum = '';
   String _prBNumeratorSum = '';
@@ -61,6 +64,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
   String _prABCNumeratorSum = '';
   String _prNotANumeratorSum = '';
   String _prNotBNumeratorSum = '';
+  String _prNotCNumeratorSum = '';
   String _prCNotANumeratorSum = '';
   String _prCNotBNumeratorSum = '';
   String _prANotCNumeratorSum = '';
@@ -266,22 +270,21 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
     _undoRedoManager.addToHistory(strList);
 
     // Initialize sums
-    (int, int) tempPrA = (0, 1);
-    (int, int) tempPrB = (0, 1);
-    (int, int) tempPrC = (0, 1);
-    (int, int) tempPrAB = (0, 1);
-    (int, int) tempPrAC = (0, 1);
-    (int, int) tempPrBC = (0, 1);
-    (int, int) tempPrABC = (0, 1);
-    (int, int) tempSum = (0, 1);
+    _prA = (0, 1);
+    _prB = (0, 1);
+    _prC = (0, 1);
+    _prAB = (0, 1);
+    _prAC = (0, 1);
+    _prBC = (0, 1);
+    _prABC = (0, 1);
 
-    (int, int) tmpPrNotA = (0, 1);
-    (int, int) tmpPrNotB = (0, 1);
-    (int, int) tmpPrNotC = (0, 1);
-    (int, int) tmpPrCNotA = (0, 1);
-    (int, int) tmpPrCNotB = (0, 1);
-    (int, int) tmpPrANotC = (0, 1);
-    (int, int) tmpPrBNotC = (0, 1);
+    _prNotA = (0, 1);
+    _prNotB = (0, 1);
+    _prNotC = (0, 1);
+    _prCNotA = (0, 1);
+    _prCNotB = (0, 1);
+    _prANotC = (0, 1);
+    _prBNotC = (0, 1);
 
     // Iterate through all numLinesTruthTable probabilities
     // Index mapping:
@@ -295,7 +298,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
     _prABCNumeratorSum = '';
     _prNotANumeratorSum = '';
     _prNotBNumeratorSum = '';
-    _prCNotANumeratorSum = '';
+    _prNotCNumeratorSum = '';
     _prCNotBNumeratorSum = '';
     _prANotCNumeratorSum = '';
     _prBNotCNumeratorSum = '';
@@ -334,6 +337,9 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
     _prCNotAB = (0, 1);
     _prCNotBA = (0, 1);
     _prNotAandB = (0, 1);
+    _prANotBNotC = (0, 1);
+    _prNotBNotC = (0, 1);
+    _prABNotC = (0, 1);
 
     for (int xIdx = 0; xIdx < numCombTruthValues; xIdx++) {
       for (int yIdx = 0; yIdx < numCombTruthValues; yIdx++) {
@@ -343,10 +349,11 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
               zIdx;
           (int, int) currentProb = _probValues[flatIndex];
 
-          tempSum = addFractions(tempSum, currentProb);
           bool aIsTrue = _truthVariableTable[flatIndex][0] >= 1;
           bool bIsTrue = _truthVariableTable[flatIndex][1] >= 1;
           bool cIsTrue = _truthVariableTable[flatIndex][2] >= 1;
+
+          _prSum = addFractionsKeepDenum(_prSum, currentProb);
 
           if (aIsTrue) {
             listForA.add('s$flatIndex');
@@ -390,7 +397,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             continue;
           }
           if (aIsTrue) {
-            tempPrA = addFractions(tempPrA, currentProb);
+            _prA = addFractions(_prA, currentProb);
             if (_prANumeratorSum.isNotEmpty) {
               _prANumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -398,7 +405,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             }
           }
           if (bIsTrue) {
-            tempPrB = addFractions(tempPrB, currentProb);
+            _prB = addFractions(_prB, currentProb);
             if (_prBNumeratorSum.isNotEmpty) {
               _prBNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -406,7 +413,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             }
           }
           if (cIsTrue) {
-            tempPrC = addFractions(tempPrC, currentProb);
+            _prC = addFractions(_prC, currentProb);
             if (_prCNumeratorSum.isNotEmpty) {
               _prCNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -414,7 +421,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             }
           }
           if (aIsTrue && bIsTrue) {
-            tempPrAB = addFractions(tempPrAB, currentProb);
+            _prAB = addFractions(_prAB, currentProb);
             if (_prABNumeratorSum.isNotEmpty) {
               _prABNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -425,7 +432,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             _prNotAandB = addFractions(_prNotAandB, currentProb);
           }
           if (aIsTrue && cIsTrue) {
-            tempPrAC = addFractions(tempPrAC, currentProb);
+            _prAC = addFractions(_prAC, currentProb);
             if (_prACNumeratorSum.isNotEmpty) {
               _prACNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -433,7 +440,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             }
           }
           if (bIsTrue && cIsTrue) {
-            tempPrBC = addFractions(tempPrBC, currentProb);
+            _prBC = addFractions(_prBC, currentProb);
             if (_prBCNumeratorSum.isNotEmpty) {
               _prBCNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -442,7 +449,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
           }
 
           if (aIsTrue && bIsTrue && cIsTrue) {
-            tempPrABC = addFractions(tempPrABC, currentProb);
+            _prABC = addFractions(_prABC, currentProb);
             if (_prABCNumeratorSum.isNotEmpty) {
               _prABCNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -451,7 +458,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
           }
 
           if (!aIsTrue) {
-            tmpPrNotA = addFractions(tmpPrNotA, currentProb);
+            _prNotA = addFractions(_prNotA, currentProb);
             if (_prNotANumeratorSum.isNotEmpty) {
               _prNotANumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -459,7 +466,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             }
           }
           if (!bIsTrue) {
-            tmpPrNotB = addFractions(tmpPrNotB, currentProb);
+            _prNotB = addFractions(_prNotB, currentProb);
             if (_prNotBNumeratorSum.isNotEmpty) {
               _prNotBNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -467,16 +474,16 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             }
           }
           if (!cIsTrue) {
-            tmpPrNotC = addFractions(tmpPrNotC, currentProb);
-            if (_prCNotANumeratorSum.isNotEmpty) {
-              _prCNotANumeratorSum += '+ ${currentProb.$1}';
+            _prNotC = addFractions(_prNotC, currentProb);
+            if (_prNotCNumeratorSum.isNotEmpty) {
+              _prNotCNumeratorSum += '+ ${currentProb.$1}';
             } else {
-              _prCNotANumeratorSum = '${currentProb.$1}';
+              _prNotCNumeratorSum = '${currentProb.$1}';
             }
           }
 
           if (cIsTrue && !aIsTrue) {
-            tmpPrCNotA = addFractions(tmpPrCNotA, currentProb);
+            _prCNotA = addFractions(_prCNotA, currentProb);
             if (_prCNotANumeratorSum.isNotEmpty) {
               _prCNotANumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -484,7 +491,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             }
           }
           if (cIsTrue && !bIsTrue) {
-            tmpPrCNotB = addFractions(tmpPrCNotB, currentProb);
+            _prCNotB = addFractions(_prCNotB, currentProb);
             if (_prCNotBNumeratorSum.isNotEmpty) {
               _prCNotBNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -494,7 +501,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
 
           /// A and ~C,   B and ~C
           if (aIsTrue && !cIsTrue) {
-            tmpPrANotC = addFractions(tmpPrANotC, currentProb);
+            _prANotC = addFractions(_prANotC, currentProb);
             if (_prANotCNumeratorSum.isNotEmpty) {
               _prANotCNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -503,7 +510,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
           }
 
           if (bIsTrue && !cIsTrue) {
-            tmpPrBNotC = addFractions(tmpPrBNotC, currentProb);
+            _prBNotC = addFractions(_prBNotC, currentProb);
             if (_prBNotCNumeratorSum.isNotEmpty) {
               _prBNotCNumeratorSum += '+ ${currentProb.$1}';
             } else {
@@ -533,6 +540,18 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
           }
           if (cIsTrue && !bIsTrue && aIsTrue) {
             _prCNotBA = addFractions(_prCNotBA, currentProb);
+          }
+          // _prANotBNotC = (0, 1);
+          // _prNotBNotC = (0, 1);
+          // _prABNotC = (0, 1);
+          if (aIsTrue && !bIsTrue && !cIsTrue) {
+            _prANotBNotC = addFractions(_prANotBNotC, currentProb);
+          }
+          if (!bIsTrue && !cIsTrue) {
+            _prNotBNotC = addFractions(_prNotBNotC, currentProb);
+          }
+          if (aIsTrue && bIsTrue && !cIsTrue) {
+            _prABNotC = addFractions(_prABNotC, currentProb);
           }
         }
       }
@@ -579,13 +598,13 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
       octaveStr += '\nPrNotC = ';
       octaveStr += listForNotC.join(' + ');
     }
-    if (tmpPrCNotA.$1 > 0) {
+    if (_prCNotA.$1 > 0) {
       octaveStr += '\nPrCNotA = ';
       octaveStr += listForC
           .where((s) => s.startsWith('s') && !listForA.contains(s))
           .join(' + ');
     }
-    if (tmpPrCNotB.$1 > 0) {
+    if (_prCNotB.$1 > 0) {
       octaveStr += '\nPrCNotB = ';
       octaveStr += listForC
           .where((s) => s.startsWith('s') && !listForB.contains(s))
@@ -593,23 +612,7 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
     }
 
     // Update state to re-render the UI
-    setState(() {
-      _prA = tempPrA;
-      _prB = tempPrB;
-      _prC = tempPrC;
-      _prAB = tempPrAB;
-      _prAC = tempPrAC;
-      _prBC = tempPrBC;
-      _prABC = tempPrABC;
-      _prSum = tempSum;
-      _prNotA = tmpPrNotA;
-      _prNotB = tmpPrNotB;
-      _prNotC = tmpPrNotC;
-      _prCNotA = tmpPrCNotA;
-      _prCNotB = tmpPrCNotB;
-      _prANotC = tmpPrANotC;
-      _prBNotC = tmpPrBNotC;
-    });
+    setState(() {});
   }
 
   // --- UI Building ---
@@ -736,6 +739,9 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
                           case 'Reset BCT':
                             _resetBCT();
                             break;
+                          case 'Reset Raven':
+                            _resetRaven();
+                            break;
                         }
                         _selectedResetOption = null;
                       });
@@ -771,6 +777,23 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
                           ],
                         ),
                       ),
+                      DropdownMenuItem(
+                        value: 'Reset Raven',
+                        child: Row(
+                          children: [
+                            /// show image from assets/icons/raven.png
+                            /// with size 20x20
+                            Image.asset(
+                              'assets/icons/raven-aistudio.png',
+                              width: 30,
+                              height: 30,
+                            ),
+                            //Icon(Icons.auto_fix_high, size: 20),
+                            SizedBox(width: 8),
+                            SelText('Reset Raven'),
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -778,30 +801,35 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
             ],
           ),
           const SizedBox(height: 15),
-          Expanded(
-              child: table(
-            prA: _prA,
-            prB: _prB,
-            prC: _prC,
-            prAB: _prAB,
-            prAC: _prAC,
-            prBC: _prBC,
-            prABC: _prABC,
-            prCNotA: _prCNotA,
-            prCNotB: _prCNotB,
-            prNotA: _prNotA,
-            prNotB: _prNotB,
-            prNotC: _prNotC,
-            prANotC: _prANotC,
-            prBNotC: _prBNotC,
-            prCNotAandB: _prCNotAandB,
-            prNotAB: _prNotAB,
-            prANotB: _prANotB,
-            prCNotAB: _prCNotAB,
-            prCNotBA: _prCNotBA,
-            prNotAandB: _prNotAandB,
-            prSum: _prSum,
-          )),
+          Expanded(child: Builder(builder: (context) {
+            print('prSum: ${_prSum.$1}/${_prSum.$2}');
+            return table(
+              prA: _prA,
+              prB: _prB,
+              prC: _prC,
+              prAB: _prAB,
+              prAC: _prAC,
+              prBC: _prBC,
+              prABC: _prABC,
+              prCNotA: _prCNotA,
+              prCNotB: _prCNotB,
+              prNotA: _prNotA,
+              prNotB: _prNotB,
+              prNotC: _prNotC,
+              prANotC: _prANotC,
+              prBNotC: _prBNotC,
+              prCNotAandB: _prCNotAandB,
+              prNotAB: _prNotAB,
+              prANotB: _prANotB,
+              prCNotAB: _prCNotAB,
+              prCNotBA: _prCNotBA,
+              prNotAandB: _prNotAandB,
+              prANotBNotC: _prANotBNotC,
+              prNotBNotC: _prNotBNotC,
+              prABNotC: _prABNotC,
+              prSum: _prSum,
+            );
+          })),
         ],
       ),
     );
@@ -852,6 +880,47 @@ class _ClassicalScreenState extends State<ClassicalScreen> {
       _calculateAndDisplayProbabilities();
     });
   }
+
+  void _resetRaven() {
+    _initializeProbabilities(
+        /*
+
+ 0   0   0    1128/2560
+ 0   0  1/2	   51/2560
+ 0	1/2  0	   105/2560	
+ 0  1/2 1/2     0/2560
+1/2  0   0     21/2560 
+1/2  0  1/2     80/2560 
+1/2 1/2  0      30/2560 
+1/2 1/2 1/2      125/2560
+
+      // 0: (1128, 2560),
+      // 1: (51, 2560),
+      // 4: (1125, 2560),
+      // 5: (0, 2560),
+      // 2: (21, 2560),
+      // 3: (80, 2560),
+      // 6: (30, 2560),
+      // 7: (125, 2560),    
+
+
+        */
+
+        initialMap: {
+          0: (1128, 2560),      // 0   0   0    1128/2560
+          1: (51, 2560),        // 0   0   1      51/2560
+          4: (1125, 2560),      // 1   0   0    1125/2560
+          5: (0, 2560),         // 1   0   1      0/2560
+          2: (21, 2560),        // 0   1   0      21/2560
+          3: (80, 2560),        // 0   1   1      80/2560
+          6: (30, 2560),        // 1   1   0      30/2560
+          7: (125, 2560),       // 1   1   1     125/2560
+        });
+
+    _calculateAndDisplayProbabilities();
+    setState(() {});
+  }
+  // 25/512 + 3/256 + 1/32 + 21/2560 + 225/512 + 51/2560 + 141/320
 
   void _reset() {
     setState(() {

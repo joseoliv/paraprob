@@ -2,21 +2,82 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:prob_lfi1/common_lib.dart';
 import 'package:prob_lfi1/fraction.dart';
 
-/// for variables A, \neg A, B, \neg B, C, \neg C, there are 64 possibilities
-final numLinesTruthTable = 64;
-final numCombTruthValues = 4; //  0 0, 0 1, 1 0, 1 1
+/*
+This file is for the Letk+ probability calculator screen. Logic $LET^+-k$ is a 
+six-value logic with the following truth values: 
+    T 
+    T0
+    B
+    N
+    F0
+    F
+*/
 
-class EveryScreen extends StatefulWidget {
-  const EveryScreen({super.key});
+enum LetKTV {
+  t,
+  t0,
+  b,
+  n,
+  f0,
+  f;
 
-  @override
-  State<EveryScreen> createState() => _EveryScreenState();
+  bool designated() {
+    return this == LetKTV.t || this == LetKTV.t0 || this == LetKTV.b;
+  }
+
+  LetKTV not() {
+    switch (this) {
+      case LetKTV.t:
+        return LetKTV.f;
+      case LetKTV.t0:
+        return LetKTV.f0;
+      case LetKTV.b:
+        return LetKTV.b;
+      case LetKTV.n:
+        return LetKTV.n;
+      case LetKTV.f0:
+        return LetKTV.t0;
+      case LetKTV.f:
+        return LetKTV.t;
+    }
+  }
+
+  /// Compare enum values based on their index order
+  /// Returns true if this value is >= other value
+  bool operator >=(LetKTV other) {
+    return index >= other.index;
+  }
+
+  /// Additional comparison operators for convenience
+  bool operator <=(LetKTV other) {
+    return index <= other.index;
+  }
+
+  bool operator >(LetKTV other) {
+    return index > other.index;
+  }
+
+  bool operator <(LetKTV other) {
+    return index < other.index;
+  }
 }
 
-class _EveryScreenState extends State<EveryScreen> {
+/// for variables A, \neg A, B, \neg B, C, \neg C, there are 6*6*6 = 216 possibilities
+final numLinesTruthTable = 216;
+final numCombTruthValues = 6; //  0 0, 0 1, 1 0, 1 1
+
+class LetkPlusScreen extends StatefulWidget {
+  const LetkPlusScreen({super.key});
+
+  @override
+  State<LetkPlusScreen> createState() => _LetkPlusScreenState();
+}
+
+class _LetkPlusScreenState extends State<LetkPlusScreen> {
   // --- State Variables ---
 
   // (b) probValues and related
@@ -27,8 +88,8 @@ class _EveryScreenState extends State<EveryScreen> {
 
   /// Truth variable table for the numLinesTruthTable probabilities
   /// Each sublist corresponds to a combination of A, B, C truth values
-  late List<List<int>> _truthVariableTable;
-  String? _selectedResetOption;
+  late List<List<LetKTV>> _truthVariableTable;
+  String? _selectedResetOption = 'Reset PI';
   // (c) Calculated results
   (int, int) _prA = (0, 1);
   (int, int) _prB = (0, 1);
@@ -139,9 +200,28 @@ class _EveryScreenState extends State<EveryScreen> {
   //     Map<int, List<(int, int)>>? initialMap}) {
 
   void _initializeProbabilities(
-      {List<(int, int)>? initialValues, Map<int, (int, int)>? initialMap}) {
+      {List<(int, int)>? initialValues,
+      Map<int, (int, int)>? initialMap,
+      Map<(LetKTV, LetKTV, LetKTV), (int, int)>? initialTruthMap}) {
     _probValues = List.filled(numLinesTruthTable, (0, 1));
-    if (initialMap != null) {
+    if (initialTruthMap != null) {
+      // Initialize _probValues from initialTruthMap
+      for (var entry in initialTruthMap.entries) {
+        LetKTV a = entry.key.$1;
+        LetKTV b = entry.key.$2;
+        LetKTV c = entry.key.$3;
+
+        // Find the corresponding flat index in _probValues
+        for (int i = 0; i < numLinesTruthTable; i++) {
+          if (_truthVariableTable[i][0] == a &&
+              _truthVariableTable[i][1] == b &&
+              _truthVariableTable[i][2] == c) {
+            _probValues[i] = entry.value;
+            break;
+          }
+        }
+      }
+    } else if (initialMap != null) {
       // Initialize _probValues from initialMap
       for (var entry in initialMap.entries) {
         if (entry.key < _probValues.length) {
@@ -167,22 +247,25 @@ class _EveryScreenState extends State<EveryScreen> {
     });
     _probLabels = [];
 
-    var valuesAnegA = [
-      '0, 0, ',
-      '0, 1, ',
-      '1, 0, ',
-      '1, 1, ',
+    /// truthValuesA should have strings corresponding to LetKTruthValues
+    var truthValuesA = [
+      't, ',
+      't0, ',
+      'b, ',
+      'n, ',
+      'f0, ',
+      'f, ',
     ];
     _truthVariableTable = [];
     for (int i = 0; i < numCombTruthValues; i++) {
-      // A, \neg A
-      var s = valuesAnegA[i];
+      // A
+      var s = truthValuesA[i];
       for (int j = 0; j < numCombTruthValues; j++) {
-        // B, \neg B, \and \circ B
-        var p = s + valuesAnegA[j];
+        // B
+        var p = s + truthValuesA[j];
         for (int k = 0; k < numCombTruthValues; k++) {
-          // C, \neg C, \and \circ C
-          var t = p + valuesAnegA[k];
+          // C
+          var t = p + truthValuesA[k];
           // remove the , followed by a space at the end
           t = t.substring(0, t.length - 2);
           var reducedPr = t.replaceAll(' ', '').replaceAll(',', '');
@@ -191,8 +274,9 @@ class _EveryScreenState extends State<EveryScreen> {
           /// add the values of t to _truthVariableTable
           /// t.split(', ') is a list of strings
           List<String> parts = t.split(', ');
-          List<int> truthValuesLine = parts.map((part) {
-            return int.parse(part);
+          List<LetKTV> truthValuesLine = parts.map((part) {
+            return LetKTV.values
+                .firstWhere((e) => e.toString().split('.').last == part);
           }).toList();
           _truthVariableTable.add(truthValuesLine);
         }
@@ -328,12 +412,13 @@ class _EveryScreenState extends State<EveryScreen> {
       (int, int) currentProb = _probValues[flatIndex];
 
       _prSum = addFractions(_prSum, currentProb);
-      bool aIsTrue = _truthVariableTable[flatIndex][0] >= 1;
-      bool bIsTrue = _truthVariableTable[flatIndex][2] >= 1;
-      bool cIsTrue = _truthVariableTable[flatIndex][4] >= 1;
-      bool aIsFalse = _truthVariableTable[flatIndex][1] >= 1;
-      bool bIsFalse = _truthVariableTable[flatIndex][3] >= 1;
-      bool cIsFalse = _truthVariableTable[flatIndex][5] >= 1;
+
+      bool aIsTrue = _truthVariableTable[flatIndex][0].designated();
+      bool bIsTrue = _truthVariableTable[flatIndex][1].designated();
+      bool cIsTrue = _truthVariableTable[flatIndex][2].designated();
+      bool notAIsTrue = _truthVariableTable[flatIndex][0].not().designated();
+      bool notBIsTrue = _truthVariableTable[flatIndex][1].not().designated();
+      bool notCIsTrue = _truthVariableTable[flatIndex][2].not().designated();
 
       if (currentProb.$1 == 0) {
         // If the probability is 0, skip further calculations for this entry
@@ -397,7 +482,7 @@ class _EveryScreenState extends State<EveryScreen> {
         }
       }
 
-      if (aIsFalse) {
+      if (notAIsTrue) {
         _prNotA = addFractions(_prNotA, currentProb);
         if (_prNotANumeratorSum.isNotEmpty) {
           _prNotANumeratorSum += '+ ${currentProb.$1}';
@@ -405,7 +490,7 @@ class _EveryScreenState extends State<EveryScreen> {
           _prNotANumeratorSum = '${currentProb.$1}';
         }
       }
-      if (bIsFalse) {
+      if (notBIsTrue) {
         _prNotB = addFractions(_prNotB, currentProb);
         if (_prNotBNumeratorSum.isNotEmpty) {
           _prNotBNumeratorSum += '+ ${currentProb.$1}';
@@ -413,7 +498,7 @@ class _EveryScreenState extends State<EveryScreen> {
           _prNotBNumeratorSum = '${currentProb.$1}';
         }
       }
-      if (cIsFalse) {
+      if (notCIsTrue) {
         _prNotC = addFractions(_prNotC, currentProb);
         if (_prCNotANumeratorSum.isNotEmpty) {
           _prCNotANumeratorSum += '+ ${currentProb.$1}';
@@ -422,7 +507,7 @@ class _EveryScreenState extends State<EveryScreen> {
         }
       }
 
-      if (cIsTrue && aIsFalse) {
+      if (cIsTrue && notAIsTrue) {
         _prCNotA = addFractions(_prCNotA, currentProb);
         if (_prCNotANumeratorSum.isNotEmpty) {
           _prCNotANumeratorSum += '+ ${currentProb.$1}';
@@ -430,7 +515,7 @@ class _EveryScreenState extends State<EveryScreen> {
           _prCNotANumeratorSum = '${currentProb.$1}';
         }
       }
-      if (cIsTrue && bIsFalse) {
+      if (cIsTrue && notBIsTrue) {
         _prCNotB = addFractions(_prCNotB, currentProb);
         if (_prCNotBNumeratorSum.isNotEmpty) {
           _prCNotBNumeratorSum += '+ ${currentProb.$1}';
@@ -449,26 +534,26 @@ class _EveryScreenState extends State<EveryScreen> {
       if (cIsTrue && !(aIsTrue && bIsTrue)) {
         _prCNotAandB = addFractions(_prCNotAandB, currentProb);
       }
-      if (aIsFalse && bIsTrue) {
+      if (notAIsTrue && bIsTrue) {
         _prNotAB = addFractions(_prNotAB, currentProb);
       }
-      if (aIsTrue && bIsFalse) {
+      if (aIsTrue && notBIsTrue) {
         _prANotB = addFractions(_prANotB, currentProb);
       }
-      if (cIsTrue && aIsFalse && bIsTrue) {
+      if (cIsTrue && notAIsTrue && bIsTrue) {
         _prCNotAB = addFractions(_prCNotAB, currentProb);
       }
-      if (cIsTrue && bIsFalse && aIsTrue) {
+      if (cIsTrue && notBIsTrue && aIsTrue) {
         _prCNotBA = addFractions(_prCNotBA, currentProb);
       }
       // ~(A & B) = ~A || ~B
-      if (aIsFalse || bIsFalse) {
+      if (notAIsTrue || notBIsTrue) {
         _prNotAandB = addFractions(_prNotAandB, currentProb);
       }
-      if (aIsTrue && cIsFalse) {
+      if (aIsTrue && notCIsTrue) {
         _prANotC = addFractions(_prANotC, currentProb);
       }
-      if (bIsTrue && cIsFalse) {
+      if (bIsTrue && notCIsTrue) {
         _prBNotC = addFractions(_prBNotC, currentProb);
       }
     }
@@ -485,16 +570,19 @@ class _EveryScreenState extends State<EveryScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: valuationProbList(22, 0),
+          SizedBox(
+            width: 300,
+            child: valuationProbList(72, 0),
           ),
           const SizedBox(width: 2),
-          Expanded(
-            child: valuationProbList(22, 22),
+          SizedBox(
+            width: 300,
+            child: valuationProbList(72, 72),
           ),
           const SizedBox(width: 2),
-          Expanded(
-            child: valuationProbList(20, 44),
+          SizedBox(
+            width: 300,
+            child: valuationProbList(72, 144),
           ),
         ],
       ),
@@ -511,18 +599,18 @@ class _EveryScreenState extends State<EveryScreen> {
           child: Row(
             children: [
               SizedBox(
-                width: 120, // Give label enough space
+                width: 60, // Give label enough space
                 child: SelText(
                   '$actualIndex: ${_probLabels[actualIndex]}',
-                  style: TextStyle(fontSize: 11, fontFamily: 'Courier New'),
+                  style: TextStyle(fontSize: 9, fontFamily: 'Courier New'),
                 ),
               ),
               const SizedBox(width: 2),
               SizedBox(
                 height: 20,
-                width: 100, // Adjust height as needed
+                width: 90, // Adjust height as needed
                 child: TextField(
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 10),
                   controller: _textControllers[actualIndex],
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
@@ -601,7 +689,7 @@ class _EveryScreenState extends State<EveryScreen> {
                     isDense: true,
                     icon: const Icon(Icons.arrow_drop_down,
                         size: 25), // Reset icon
-                    hint: const SelText('Reset options'),
+                    hint: SelText(_selectedResetOption ?? 'Reset Options'),
                     onChanged: (String? newValue) {
                       setState(() {
                         _selectedResetOption = newValue;
@@ -615,8 +703,14 @@ class _EveryScreenState extends State<EveryScreen> {
                           case 'Reset BCT':
                             _resetBCT();
                             break;
-                          case 'Reset BCT Corpus':
-                            _resetBCTCorpus();
+                          // case 'Reset BCT Corpus':
+                          //   _resetBCTCorpus();
+                          //   break;
+                          case 'Raven':
+                            _resetRaven();
+                            break;
+                          case 'Miracle':
+                            _resetMiracle();
                             break;
                         }
                         _selectedResetOption = null;
@@ -653,16 +747,31 @@ class _EveryScreenState extends State<EveryScreen> {
                           ],
                         ),
                       ),
-                      // DropdownMenuItem(
-                      //   value: 'Reset BCT Corpus',
-                      //   child: Row(
-                      //     children: const [
-                      //       Icon(Icons.settings_backup_restore, size: 20),
-                      //       SizedBox(width: 8),
-                      //       SelText('Reset BCT Corpus'),
-                      //     ],
-                      //   ),
-                      // ),
+                      DropdownMenuItem(
+                        value: 'Raven',
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/icons/raven-aistudio.png',
+                              width: 30,
+                              height: 30,
+                            ),
+                            SizedBox(width: 8),
+                            SelText('Raven'),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Miracle',
+                        child: Row(
+                          children: [
+                            FaIcon(FontAwesomeIcons.wandMagic,
+                                size: 20, color: Colors.red),
+                            SizedBox(width: 8),
+                            SelText('Miracle'),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -705,35 +814,24 @@ class _EveryScreenState extends State<EveryScreen> {
   void _resetBCT() {
     setState(() {});
     _initializeProbabilities(
-      initialMap: {
-        21: (835, 5120),
-        22: (125, 5120),
-        25: (1341, 5120),
-        26: (1539, 5120),
-        37: (193, 5120),
-        41: (291, 5120),
-        42: (669, 5120),
-        47: (27, 5120),
-        63: (100, 5120)
-      },
-    );
-    _calculateAndDisplayProbabilities();
-  }
+      initialTruthMap: {
+        /*
+ 0   0   0     835/5120
+ 0   0  1/2	   125/5120
+ 0	1/2  0	  1341/5120	
+ 0   1   1    1539/5120
+1/2  0   0     193/5120 
+1/2 1/2  0      291/5120 
+1/2 1/2 1/2     796/5120
 
-  void _resetBCTCorpus() {
-    setState(() {});
-    _initializeProbabilities(
-      initialMap: {
-        21: (735, 5120),
-        22: (225, 5120),
-        25: (1341, 5120),
-        26: (1539, 5120),
-        37: (193, 5120),
-        38: (127, 5120),
-        41: (291, 5120),
-        42: (669, 5120),
-        //47: (127, 5120),
-        //63: (100, 5120)
+        */
+        (LetKTV.f0, LetKTV.f0, LetKTV.f0): (835, 5120),
+        (LetKTV.f0, LetKTV.f0, LetKTV.b): (125, 5120),
+        (LetKTV.f0, LetKTV.b, LetKTV.f0): (1341, 5120),
+        (LetKTV.f0, LetKTV.t0, LetKTV.t0): (1539, 5120),
+        (LetKTV.t0, LetKTV.f0, LetKTV.f0): (193, 5120),
+        (LetKTV.t0, LetKTV.t0, LetKTV.f0): (291, 5120),
+        (LetKTV.b, LetKTV.b, LetKTV.b): (796, 5120),
       },
     );
     _calculateAndDisplayProbabilities();
@@ -741,9 +839,9 @@ class _EveryScreenState extends State<EveryScreen> {
 
   void _resetPI() {
     setState(() {
-      _initializeProbabilities(initialMap: {
+      _initializeProbabilities(initialTruthMap: {
         /*
-        21: 0 1 0 1 0 1 : 1459/2000
+21: 0 1 0 1 0 1 : 1459/2000
 23: 0 1 0 1 1 1 :  161/2000
 25: 0 1 1 0 0 1 : 1/2000
 29: 0 1 1 1 0 1 : 160/2000
@@ -754,21 +852,101 @@ class _EveryScreenState extends State<EveryScreen> {
 61: 1 1 1 1 0 1 : 19/2000
 63: 1 1 1 1 1 1 : 1/2000
 
+        0: (1459, 2000),  // 0 0 0 
+        1: (161, 2000),   // 0 0 1
+        2: (161, 2000),   // 0 1 0
+        3: (19, 2000),    // 0 1 1
+        4: (161, 2000),   // 1 0 0
+        5: (19, 2000),    // 1 0 1
+        6: (19, 2000),    // 1 1 0
+        7: (1, 2000),     // 1 1 1
+
+
         */
-        21: (1459, 2000),
-        23: (161, 2000),
-        25: (1, 2000),
-        29: (160, 2000),
-        31: (19, 2000),
-        37: (1, 2000),
-        53: (160, 2000),
-        55: (19, 2000),
-        61: (19, 2000),
-        63: (1, 2000),
+        (LetKTV.f0, LetKTV.f0, LetKTV.f0): (1459, 2000),
+        (LetKTV.f0, LetKTV.f0, LetKTV.b): (161, 2000),
+        (LetKTV.f0, LetKTV.b, LetKTV.f0): (161, 2000),
+        (LetKTV.f0, LetKTV.b, LetKTV.b): (19, 2000),
+        (LetKTV.b, LetKTV.f0, LetKTV.f0): (161, 2000),
+        (LetKTV.b, LetKTV.f0, LetKTV.b): (19, 2000),
+        (LetKTV.b, LetKTV.b, LetKTV.f0): (19, 2000),
+        (LetKTV.b, LetKTV.b, LetKTV.b): (1, 2000),
+        /*
+        (LetKTV.f0, LetKTV.f0, LetKTV.f0): (1459, 2000),
+        (LetKTV.f0, LetKTV.f0, LetKTV.t0): (161, 2000),
+        (LetKTV.f0, LetKTV.t0, LetKTV.f0): (161, 2000),
+        //(LetKTV.f0, LetKTV.b, LetKTV.t0): (160, 2000),
+        (LetKTV.f0, LetKTV.t0, LetKTV.t0): (19, 2000),
+        //(LetKTV.t0, LetKTV.f0, LetKTV.f0): (1, 2000),
+        (LetKTV.t0, LetKTV.f0, LetKTV.f0): (161, 2000),
+        (LetKTV.t0, LetKTV.f0, LetKTV.t0): (19, 2000),
+        (LetKTV.t0, LetKTV.t0, LetKTV.f0): (19, 2000),
+        (LetKTV.t0, LetKTV.t0, LetKTV.t0): (1, 2000),
+
+        */
       });
 
       _calculateAndDisplayProbabilities();
     });
+  }
+
+  void _resetRaven() {
+    _initializeProbabilities(initialTruthMap: {
+      /*
+          0: (1128, 2560),      // 0   0   0    1128/2560
+          1: (51, 2560),        // 0   0   1      51/2560
+          4: (1125, 2560),      // 1   0   0    1125/2560
+          5: (0, 2560),         // 1   0   1      0/2560
+          2: (21, 2560),        // 0   1   0      21/2560
+          3: (80, 2560),        // 0   1   1      80/2560
+          6: (30, 2560),        // 1   1   0      30/2560
+          7: (125, 2560),       // 1   1   1     125/2560
+      */
+      (LetKTV.f0, LetKTV.f0, LetKTV.f0): (1128, 2560),
+      (LetKTV.f0, LetKTV.f0, LetKTV.t0): (51, 2560),
+      (LetKTV.t0, LetKTV.f0, LetKTV.f0): (1125, 2560),
+      (LetKTV.t0, LetKTV.f0, LetKTV.t0): (0, 2560),
+      (LetKTV.f0, LetKTV.t0, LetKTV.f0): (21, 2560),
+      (LetKTV.f0, LetKTV.t0, LetKTV.t0): (80, 2560),
+      (LetKTV.t0, LetKTV.t0, LetKTV.f0): (30, 2560),
+      (LetKTV.t0, LetKTV.t0, LetKTV.t0): (125, 2560),
+
+      // (LetKTV.f0, LetKTV.f0, LetKTV.f0): (1128, 2560),
+      // (LetKTV.f0, LetKTV.f0, LetKTV.t0): (51, 2560),
+      // (LetKTV.t0, LetKTV.f0, LetKTV.f0): (1125, 2560),
+      // (LetKTV.t0, LetKTV.f0, LetKTV.t0): (0, 2560),
+      // (LetKTV.f0, LetKTV.t0, LetKTV.f0): (21, 2560),
+      // (LetKTV.f0, LetKTV.t0, LetKTV.t0): (80, 2560),
+      // (LetKTV.t0, LetKTV.t0, LetKTV.f0): (30, 2560),
+      // (LetKTV.t0, LetKTV.t0, LetKTV.t0): (125, 2560),    
+      });
+
+    _calculateAndDisplayProbabilities();
+    setState(() {});
+  }
+
+  void _resetMiracle() {
+    // 0  0   6033/8192
+    // 0  1      1/64
+    // 1  0   1007/8192
+    // 1  1      1/8
+    _initializeProbabilities(initialMap: {
+      // 0  0   6033/8192
+
+      0: (6033, 8192),
+
+      // 0  1      1/64
+      3: (128, 8192),
+
+      // 1  0   1007/8192
+      9: (1007, 8192),
+
+      // 1  1      1/8
+      12: (1024, 8192),
+    });
+
+    _calculateAndDisplayProbabilities();
+    setState(() {});
   }
 
   void _reset() {
@@ -782,13 +960,13 @@ class _EveryScreenState extends State<EveryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const SelText('Probability Calculator for 4V (maybe FDE)'),
-        backgroundColor: Colors.blueGrey[100],
+        title: const SelText('Probability Calculator for LETK+'),
+        backgroundColor: const Color.fromARGB(255, 225, 244, 252),
       ),
       body: Row(
         children: [
-          SizedBox(
-            width: 800,
+          Expanded(
+            flex: 1,
             child: _buildLeftPanel(),
           ),
           const SizedBox(width: 16.0), // Space between panels

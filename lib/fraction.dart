@@ -19,6 +19,16 @@ int gcd(int a, int b) {
   return simplifyFraction((numerator, denominator));
 }
 
+(int, int) addFractionsKeepDenum((int, int) a, (int, int) b) {
+  if (a.$2 == 0 || b.$2 == 0) return (1, 0); // Error
+  if ( a.$1 == 0) return b;
+  if ( b.$1 == 0) return a;
+  if (a.$2 == b.$2) {
+    return (a.$1 + b.$1, a.$2);
+  }
+  return addFractions(a, b);
+}
+
 (int, int) parseFraction(String text, int index) {
   final regex = RegExp(r'^\s*(\d+)\s*/\s*(\d+)\s*$');
   final match = regex.firstMatch(text);
@@ -54,7 +64,31 @@ int gcd(int a, int b) {
   return simplifyFraction((numerator, denominator));
 }
 
-bool gt( (int, int) a, (int, int) b) {
+bool gt((int, int) a, (int, int) b) {
   if (a.$2 == 0 || b.$2 == 0) return false; // Error case
   return a.$1 * b.$2 > b.$1 * a.$2;
+}
+
+bool lt((int, int) a, (int, int) b) {
+  if (a.$2 == 0 || b.$2 == 0) return false; // Error case
+  return a.$1 * b.$2 < b.$1 * a.$2;
+}
+
+/// equal
+///
+bool eq((int, int) a, (int, int) b) {
+  if (a.$2 == 0 || b.$2 == 0) return false; // Error case
+  return a.$1 * b.$2 == b.$1 * a.$2;
+}
+
+// lt or equal
+bool le((int, int) a, (int, int) b) {
+  if (a.$2 == 0 || b.$2 == 0) return false; // Error case
+  return a.$1 * b.$2 <= b.$1 * a.$2;
+}
+
+// gt or equal
+bool ge((int, int) a, (int, int) b) {
+  if (a.$2 == 0 || b.$2 == 0) return false; // Error case
+  return a.$1 * b.$2 >= b.$1 * a.$2;
 }

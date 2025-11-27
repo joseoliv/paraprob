@@ -46,6 +46,9 @@ class _CiScreenState extends State<CiScreen> {
   (int, int) _prCNotAB = (0, 1);
   (int, int) _prCNotBA = (0, 1);
   (int, int) _prNotAandB = (0, 1);
+  (int, int) _prANotBNotC = (0, 1);
+  (int, int) _prNotBNotC = (0, 1);
+  (int, int) _prABNotC = (0, 1);
 
   String _prANumeratorSum = '';
   String _prBNumeratorSum = '';
@@ -424,6 +427,18 @@ class _CiScreenState extends State<CiScreen> {
           if (bIsTrue && cIsFalse) {
             _prBNotC = addFractions(_prBNotC, currentProb);
           }
+          // _prANotBNotC = (0, 1);
+          if (aIsTrue && bIsFalse && cIsFalse) {
+            _prANotBNotC = addFractions(_prANotBNotC, currentProb);
+          }
+          // _prNotBNotC = (0, 1);
+          if (bIsFalse && cIsFalse) {
+            _prNotBNotC = addFractions(_prNotBNotC, currentProb);
+          }
+          // _prABNotC = (0, 1);
+          if (aIsTrue && bIsTrue && cIsFalse) {
+            _prABNotC = addFractions(_prABNotC, currentProb);
+          }
         }
       }
     }
@@ -535,11 +550,14 @@ class _CiScreenState extends State<CiScreen> {
                           case 'Reset':
                             _reset();
                             break;
-                          case 'Reset PI':
+                          case 'PI':
                             _resetPI();
                             break;
-                          case 'Reset BCT':
+                          case 'BCT':
                             _resetBCT();
+                            break;
+                          case 'Raven':
+                            _resetRaven();
                             break;
                         }
                         _selectedResetOption = null;
@@ -557,22 +575,36 @@ class _CiScreenState extends State<CiScreen> {
                         ),
                       ),
                       DropdownMenuItem(
-                        value: 'Reset PI',
+                        value: 'PI',
                         child: Row(
                           children: const [
                             Icon(Icons.calculate, size: 20),
                             SizedBox(width: 8),
-                            SelText('Reset PI'),
+                            SelText('PI'),
                           ],
                         ),
                       ),
                       DropdownMenuItem(
-                        value: 'Reset BCT',
+                        value: 'BCT',
                         child: Row(
                           children: const [
                             Icon(Icons.settings_backup_restore, size: 20),
                             SizedBox(width: 8),
-                            SelText('Reset BCT'),
+                            SelText('BCT'),
+                          ],
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Raven',
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/icons/raven-aistudio.png',
+                              width: 30,
+                              height: 30,
+                            ),
+                            SizedBox(width: 8),
+                            SelText('Reset'),
                           ],
                         ),
                       ),
@@ -621,6 +653,9 @@ class _CiScreenState extends State<CiScreen> {
             prCNotAB: _prCNotAB,
             prCNotBA: _prCNotBA,
             prNotAandB: _prNotAandB,
+            prANotBNotC: _prANotBNotC,
+            prNotBNotC: _prNotBNotC,
+            prABNotC: _prABNotC,
             prSum: _prSum,
           )),
         ],
@@ -707,6 +742,43 @@ class _CiScreenState extends State<CiScreen> {
         (1, 2000)
       ]);
 
+      _calculateAndDisplayProbabilities();
+    });
+  }
+
+  void _resetRaven() {
+    setState(() {
+      _initializeProbabilities(
+        initialMap: {
+          0: [(1000, 2650)],
+
+          ///  0   0  0
+          2: [(88, 2650)],
+
+          ///  0   0 1/2
+          6: [(36, 2650)],
+
+          ///  0  1/2  0
+          8: [(138, 2650)],
+
+          ///  0  1/2 1/2
+          13: [(940, 2650)],
+
+          ///  1   1   1
+          18: [(181, 2650)],
+
+          /// 1/2  0   0
+          20: [(0, 2650)],
+
+          /// 1/2  0  1/2
+          24: [(52, 2650)],
+
+          /// 1/2 1/2  0
+          26: [(215, 2650)],
+
+          /// 1/2 1/2 1/2
+        },
+      );
       _calculateAndDisplayProbabilities();
     });
   }
