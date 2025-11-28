@@ -563,52 +563,7 @@ class _CiScreenState extends State<CiScreen> {
                         _selectedResetOption = null;
                       });
                     },
-                    items: [
-                      DropdownMenuItem(
-                        value: 'Reset',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.restart_alt, size: 20),
-                            SizedBox(width: 8),
-                            SelText('Reset'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'PI',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.calculate, size: 20),
-                            SizedBox(width: 8),
-                            SelText('PI'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'BCT',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.settings_backup_restore, size: 20),
-                            SizedBox(width: 8),
-                            SelText('BCT'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Raven',
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/raven-aistudio.png',
-                              width: 30,
-                              height: 30,
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Reset'),
-                          ],
-                        ),
-                      ),
-                    ],
+                    items:ddMenuItemList,
                   ),
                 ),
               ),

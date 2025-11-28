@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:prob_lfi1/common_lib.dart';
 import 'package:prob_lfi1/fraction.dart';
@@ -738,77 +739,7 @@ class _LetkPlusScreenState extends State<LetkPlusScreen> {
                         }
                       });
                     },
-                    items: [
-                      DropdownMenuItem(
-                        value: 'Choose',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.restart_alt, size: 20),
-                            SizedBox(width: 8),
-                            SelText('Reset'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Prob. Independency',
-                        child: Row(
-                          children: [
-                            Transform.rotate(
-                              angle: 0.785398, // 45 degrees in radians (π/4)
-                              child: const Text(
-                                '=',
-                                style: TextStyle(
-                                    fontSize: 25, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const SelText('Prob. Independency'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Bayes Confirm.',
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/visual-bayes-theorem.png',
-                              width: 30,
-                              height: 30,
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Bayes Confirm.'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Raven',
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/raven-aistudio.png',
-                              width: 30,
-                              height: 30,
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Raven'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Miracle',
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/wand-left.png',
-                              width: 30,
-                              height: 30,
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Miracle'),
-                          ],
-                        ),
-                      ),
-                    ],
+                    items: ddMenuItemList,
                   ),
                 ),
               ),
@@ -988,7 +919,10 @@ class _LetkPlusScreenState extends State<LetkPlusScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const SelText('Probability Calculator for LETK+'),
+        title: Row(children: [
+          SelText('Probability Calculator for '),
+          Math.tex('LET^+_K')
+        ]),
         backgroundColor: const Color.fromARGB(255, 225, 244, 252),
       ),
       body: Row(

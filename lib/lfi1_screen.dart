@@ -517,77 +517,7 @@ class _LFI1ScreenState extends State<LFI1Screen> {
                         }
                       });
                     },
-                    items: [
-                      DropdownMenuItem(
-                        value: 'Choose',
-                        child: Row(
-                          children: const [
-                            Icon(Icons.restart_alt, size: 20),
-                            SizedBox(width: 8),
-                            SelText('Reset'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Prob. Independency',
-                        child: Row(
-                          children: [
-                            Transform.rotate(
-                              angle: 0.785398, // 45 degrees in radians (π/4)
-                              child: const Text(
-                                '=',
-                                style: TextStyle(
-                                    fontSize: 25, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Prob. Independency'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Bayes Confirm.',
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/visual-bayes-theorem.png',
-                              width: 30,
-                              height: 30,
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Bayes Confirm.'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Raven',
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/raven-aistudio.png',
-                              width: 30,
-                              height: 30,
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Raven'),
-                          ],
-                        ),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Miracle',
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/icons/wand-left.png',
-                              width: 30,
-                              height: 30,
-                            ),
-                            SizedBox(width: 8),
-                            SelText('Miracle'),
-                          ],
-                        ),
-                      ),
-                    ],
+                    items: ddMenuItemList,
                   ),
                 ),
               ),

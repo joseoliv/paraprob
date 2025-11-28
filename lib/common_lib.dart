@@ -455,7 +455,11 @@ Widget table(
                                   padding: inSetCell,
                                   child: Text(
                                       'Raven (inequalities must be true)'))),
-                          const TableCell(child: SizedBox.shrink()),
+                          TableCell(
+                              child: Padding(
+                                  padding: inSetCell,
+                                  child: Text(
+                                      'Article uses H, B, R. We use A, B, C instead'))),
                         ]),
                         // _prABC == _prAC
                         // _prNotB > _prC
@@ -465,13 +469,13 @@ Widget table(
                               child: Padding(
                                   padding: inSetCell,
                                   child: _buildResultRowStr(
-                                      'Pr(A&B&C) == Pr(A&C)  = ',
+                                      '(1) Pr(A&B&C) == Pr(A&C)  = ',
                                       (prABC == prAC) ? 'True' : 'False'))),
                           TableCell(
                               child: Padding(
                                   padding: inSetCell,
                                   child: _buildResultRowStr(
-                                    'Pr(Not B) > Pr(C) = ',
+                                    '(2) Pr(Not B) > Pr(C) = ',
                                     (gt(sub(div(prNotB, prC), div(prBC, prB)),
                                             (0, 1))
                                         ? 'True'
@@ -508,6 +512,22 @@ Widget table(
                                   child: _buildResultRow(
                                       'Pr(A&~B&~C) = ', prANotBNotC))),
                         ]),
+
+                        TableRow(children: [
+                          TableCell(
+                              child: Padding(
+                                  padding: inSetCell,
+                                  child: _buildResultRowStr(
+                                      '(C) Pr(A|C) >= Pr(A|~B) = ',
+                                      ge(prAgivenC, aNotBdivprNotB)
+                                          ? 'True'
+                                          : 'False'))),
+                          TableCell(
+                              child: Padding(
+                                  padding: inSetCell,
+                                  child: _buildResultRow(' = ', prANotBNotC))),
+                        ]),
+
 // _prNotBNotC
 // _prANotBNotC/_prNotBNotC
 
@@ -532,7 +552,7 @@ Widget table(
                               child: Padding(
                                   padding: inSetCell,
                                   child: _buildResultRowStr(
-                                      'Pr(A&~B&~C)/Pr(~B&~C) <= Pr(A)',
+                                      '~(6) Pr(A&~B&~C)/Pr(~B&~C) <= Pr(A)',
                                       le(aNotBNotCdivprNotBNotC, prA)
                                           ? 'True'
                                           : 'False'))),
@@ -556,7 +576,7 @@ Widget table(
                               child: Padding(
                                   padding: inSetCell,
                                   child: _buildResultRowStr(
-                                      'Pr(A&B&~C)/Pr(B&~C) >= Pr(A)',
+                                      '~(7) Pr(A&B&~C)/Pr(B&~C) >= Pr(A)',
                                       ge(aBNotCdivprBNotC, prA)
                                           ? 'True'
                                           : 'False'))),
@@ -832,3 +852,74 @@ double _parseFraction(String fraction) {
     return (numeratorSum, denominatorProduct);
   }
 }
+
+List<DropdownMenuItem<String>> ddMenuItemList = [
+  DropdownMenuItem(
+    value: 'Choose',
+    child: Row(
+      children: const [
+        Icon(Icons.restart_alt, size: 20),
+        SizedBox(width: 8),
+        SelText('Reset'),
+      ],
+    ),
+  ),
+  DropdownMenuItem(
+    value: 'Prob. Independency',
+    child: Row(
+      children: [
+        Transform.rotate(
+          angle: 0.785398, // 45 degrees in radians (π/4)
+          child: const Text(
+            '=',
+            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(width: 8),
+        const SelText('Prob. Independency'),
+      ],
+    ),
+  ),
+  DropdownMenuItem(
+    value: 'Bayes Confirm.',
+    child: Row(
+      children: [
+        Image.asset(
+          'assets/icons/visual-bayes-theorem.png',
+          width: 30,
+          height: 30,
+        ),
+        SizedBox(width: 8),
+        SelText('Bayes Confirm.'),
+      ],
+    ),
+  ),
+  DropdownMenuItem(
+    value: 'Raven',
+    child: Row(
+      children: [
+        Image.asset(
+          'assets/icons/raven-aistudio.png',
+          width: 30,
+          height: 30,
+        ),
+        SizedBox(width: 8),
+        SelText('Raven'),
+      ],
+    ),
+  ),
+  DropdownMenuItem(
+    value: 'Miracle',
+    child: Row(
+      children: [
+        Image.asset(
+          'assets/icons/wand-left.png',
+          width: 30,
+          height: 30,
+        ),
+        SizedBox(width: 8),
+        SelText('Miracle'),
+      ],
+    ),
+  ),
+];
