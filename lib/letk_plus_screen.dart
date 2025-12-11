@@ -629,7 +629,7 @@ class _LetkPlusScreenState extends State<LetkPlusScreen> implements ILogic {
                       hideZeroProbabilities = true;
                     });
                   },
-                  child: const SelText('Show Only Zero Probabilities'),
+                  child: const SelText('Show Only Non-Zero Probabilities'),
                 ),
                 SizedBox(height: 30),
               ],
@@ -639,17 +639,17 @@ class _LetkPlusScreenState extends State<LetkPlusScreen> implements ILogic {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 300,
+                  width: 200,
                   child: valuationProbList(72, 0),
                 ),
                 const SizedBox(width: 2),
                 SizedBox(
-                  width: 300,
+                  width: 200,
                   child: valuationProbList(72, 72),
                 ),
                 const SizedBox(width: 2),
                 SizedBox(
-                  width: 300,
+                  width: 200,
                   child: valuationProbList(72, 144),
                 ),
               ],
@@ -803,29 +803,6 @@ class _LetkPlusScreenState extends State<LetkPlusScreen> implements ILogic {
   Future<void> reset() async {
     setState(() {
       initializeProbabilities(initialTruthMap: {
-        /*
-21: 0 1 0 1 0 1 : 1459/2000
-23: 0 1 0 1 1 1 :  161/2000
-25: 0 1 1 0 0 1 : 1/2000
-29: 0 1 1 1 0 1 : 160/2000
-31: 0 1 1 1 1 1 :  19/2000
-37: 1 0 0 1 0 1 :   1/2000
-53: 1 1 0 1 0 1 : 160/2000
-55: 1 1 0 1 1 1 : 19/2000
-61: 1 1 1 1 0 1 : 19/2000
-63: 1 1 1 1 1 1 : 1/2000
-
-        0: (1459, 2000),  // 0 0 0 
-        1: (161, 2000),   // 0 0 1
-        2: (161, 2000),   // 0 1 0
-        3: (19, 2000),    // 0 1 1
-        4: (161, 2000),   // 1 0 0
-        5: (19, 2000),    // 1 0 1
-        6: (19, 2000),    // 1 1 0
-        7: (1, 2000),     // 1 1 1
-
-
-        */
         (LetKTV.f0, LetKTV.f0, LetKTV.f0): (1459, 2000),
         (LetKTV.f0, LetKTV.f0, LetKTV.b): (161, 2000),
         (LetKTV.f0, LetKTV.b, LetKTV.f0): (161, 2000),
@@ -834,19 +811,6 @@ class _LetkPlusScreenState extends State<LetkPlusScreen> implements ILogic {
         (LetKTV.b, LetKTV.f0, LetKTV.b): (19, 2000),
         (LetKTV.b, LetKTV.b, LetKTV.f0): (19, 2000),
         (LetKTV.b, LetKTV.b, LetKTV.b): (1, 2000),
-        /*
-        (LetKTV.f0, LetKTV.f0, LetKTV.f0): (1459, 2000),
-        (LetKTV.f0, LetKTV.f0, LetKTV.t0): (161, 2000),
-        (LetKTV.f0, LetKTV.t0, LetKTV.f0): (161, 2000),
-        //(LetKTV.f0, LetKTV.b, LetKTV.t0): (160, 2000),
-        (LetKTV.f0, LetKTV.t0, LetKTV.t0): (19, 2000),
-        //(LetKTV.t0, LetKTV.f0, LetKTV.f0): (1, 2000),
-        (LetKTV.t0, LetKTV.f0, LetKTV.f0): (161, 2000),
-        (LetKTV.t0, LetKTV.f0, LetKTV.t0): (19, 2000),
-        (LetKTV.t0, LetKTV.t0, LetKTV.f0): (19, 2000),
-        (LetKTV.t0, LetKTV.t0, LetKTV.t0): (1, 2000),
-
-        */
       });
 
       calculateAndDisplayProbabilities();

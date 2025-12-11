@@ -99,16 +99,17 @@ class _LFI1ScreenState extends State<LFI1Screen> implements ILogic {
             i++) {
           _probValues[i] = initialValues[i];
         }
-      } else {
-        _probValues[0] = (1459, 2000);
-        _probValues[2] = (161, 2000);
-        _probValues[6] = (161, 2000);
-        _probValues[8] = (19, 2000);
-        _probValues[18] = (161, 2000);
-        _probValues[20] = (19, 2000);
-        _probValues[24] = (19, 2000);
-        _probValues[26] = (1, 2000);
       }
+      // else {
+      //   _probValues[0] = (1459, 2000);
+      //   _probValues[2] = (161, 2000);
+      //   _probValues[6] = (161, 2000);
+      //   _probValues[8] = (19, 2000);
+      //   _probValues[18] = (161, 2000);
+      //   _probValues[20] = (19, 2000);
+      //   _probValues[24] = (19, 2000);
+      //   _probValues[26] = (1, 2000);
+      // }
     }
 
     /// Initialize all TextEditingControllers with the values corresponding to the probabilities
@@ -418,82 +419,84 @@ class _LFI1ScreenState extends State<LFI1Screen> implements ILogic {
   // --- UI Building ---
 
   Widget _buildLeftPanel() {
-    final numItems = 28;
+    final numItems = 27;
     return Container(
       color: leftPanelColor, // Very light rose (LavenderBlush)
       padding: const EdgeInsets.all(12.0),
-      child: ListView.builder(
-        itemCount: numItems,
-        itemBuilder: (context, index) {
-          if (index == numItems - 1) {
-            if (hideZeroProbabilities) {
-              return Column(
-                /// center the button in the horizontal axis
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        hideZeroProbabilities = false;
-                      });
-                    },
-                    child: const SelText('Show All Probabilities'),
-                  ),
-                ],
-              );
-            } else {
-              return Column(
-                /// center the button in the horizontal axis
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        hideZeroProbabilities = true;
-                      });
-                    },
-                    child: const SelText('Show Only Zero Probabilities'),
-                  ),
-                ],
-              );
-            }
-          }
-          if (hideZeroProbabilities && _probValues[index].$1 == 0) {
-            return const SizedBox.shrink();
-          }
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
+      child: Column(
+        children: [
+          if (hideZeroProbabilities)
+            Column(
               children: [
-                SizedBox(
-                  width: 180, // Give label enough space
-                  child: SelText(
-                    '$index: ${_probLabels[index]}',
-                    style: TextStyle(fontSize: 11, fontFamily: 'Courier New'),
-                  ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      hideZeroProbabilities = false;
+                    });
+                  },
+                  child: const SelText('Show All Probabilities'),
                 ),
-                const SizedBox(width: 20),
-                SizedBox(
-                  height: 25,
-                  width: 100, // Adjust height as needed
-                  child: TextField(
-                    style: TextStyle(fontSize: 12),
-                    controller: _textControllers[index],
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    ),
-                    // Optional: Add input formatter or immediate validation if desired
-                  ),
-                ),
+                SizedBox(height: 30),
               ],
             ),
-          );
-        },
+          if (!hideZeroProbabilities)
+            Column(
+              /// center the button in the horizontal axis
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      hideZeroProbabilities = true;
+                    });
+                  },
+                  child: const SelText('Show Only Non-Zero Probabilities'),
+                ),
+                SizedBox(height: 30),
+              ],
+            ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: numItems,
+              itemBuilder: (context, index) {
+                if (hideZeroProbabilities && _probValues[index].$1 == 0) {
+                  return const SizedBox.shrink();
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 180, // Give label enough space
+                        child: SelText(
+                          '$index: ${_probLabels[index]}',
+                          style: TextStyle(
+                              fontSize: 11, fontFamily: 'Courier New'),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      SizedBox(
+                        height: 25,
+                        width: 100, // Adjust height as needed
+                        child: TextField(
+                          style: TextStyle(fontSize: 12),
+                          controller: _textControllers[index],
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                          ),
+                          // Optional: Add input formatter or immediate validation if desired
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

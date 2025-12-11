@@ -1174,12 +1174,6 @@ Widget wrapToButtons(ILogic aLogic, (int, int) prSum, BuildContext context,
       ),
       SizedBox(width: 8), // Space between buttons
 
-      // ElevatedButton(
-      //   onPressed: () {
-      //     aLogic.showText();
-      //   },
-      //   child: SelText('Text'),
-      // ),
       DropdownButtonHideUnderline(
         child: Container(
           padding: EdgeInsets.fromLTRB(12, 3, 12, 5),

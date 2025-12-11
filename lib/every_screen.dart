@@ -538,7 +538,7 @@ class _EveryScreenState extends State<EveryScreen> implements ILogic {
                       hideZeroProbabilities = true;
                     });
                   },
-                  child: const SelText('Show Only Zero Probabilities'),
+                  child: const SelText('Show Only Non-Zero Probabilities'),
                 ),
                 SizedBox(height: 30),
               ],
