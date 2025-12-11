@@ -26,6 +26,9 @@ var tableBorderColor = const Color.fromARGB(255, 9, 156, 161);
 var scaffoldBackground = const Color.fromARGB(
     255, 219, 254, 255); //  Color.fromARGB(255, 221, 239, 251);
 
+
+bool showMessageChooseOptionInGreenMenu = true;
+
 enum LogicType { classical, lfi1, letplusK, ci, fourV }
 
 LogicType currentLogic = LogicType.classical;
