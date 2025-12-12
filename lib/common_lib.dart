@@ -1148,32 +1148,35 @@ abstract interface class ILogic {
 
 Widget wrapToButtons(ILogic aLogic, (int, int) prSum, BuildContext context,
     {bool isLoading = false, Animation<double>? scaleAnimation}) {
-  return Wrap(
-    spacing: 10.0,
-    runSpacing: 10.0,
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    // spacing: 10.0,
+    // runSpacing: 10.0,
     children: [
-      ElevatedButton(
-        onPressed: aLogic.undoLastChange,
-        child: Icon(Icons.undo_outlined, size: 20),
-      ),
-      ElevatedButton(
-        onPressed: aLogic.redoLastChange,
-        child: Icon(Icons.redo_outlined, size: 20),
-      ),
-      ElevatedButton(
-        onPressed: aLogic.calculateAndDisplayProbabilities,
-        child: SelText('Calculate'),
-      ),
-
-      SizedBox(width: 8), // Space between buttons
-      ElevatedButton(
-        onPressed: () {
-          showHelpDialog(context);
-        },
-        child: SelText('Help'),
-      ),
-      SizedBox(width: 8), // Space between buttons
-
+      Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+        ElevatedButton(
+          onPressed: aLogic.undoLastChange,
+          child: Icon(Icons.undo_outlined, size: 20),
+        ),
+        ElevatedButton(
+          onPressed: aLogic.redoLastChange,
+          child: Icon(Icons.redo_outlined, size: 20),
+        ),
+        ElevatedButton(
+          onPressed: aLogic.calculateAndDisplayProbabilities,
+          child: Tooltip(
+              message:
+                  'If you change the probabilities on the left, click here to recalculate.',
+              child: SelText('Calculate')),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            showHelpDialog(context);
+          },
+          child: SelText('Help'),
+        ),
+      ]),
+      SizedBox(height: 14), // Space between rows
       StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return SegmentedButton<ResultKind>(
@@ -1272,64 +1275,7 @@ Widget wrapToButtons(ILogic aLogic, (int, int) prSum, BuildContext context,
           );
         },
       ),
-      SizedBox(width: 12), // Space between buttons
-      ScaleTransition(
-        scale: scaleAnimation ?? AlwaysStoppedAnimation(1.0),
-        child: DropdownButtonHideUnderline(
-          child: Container(
-            padding: EdgeInsets.fromLTRB(12, 3, 12, 5),
-
-            /// a rounded border to the DropdownButton
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: const Color.fromARGB(255, 96, 139, 109), // Border color
-                width: 1, // Border width
-              ),
-              color: const Color.fromARGB(
-                  255, 197, 255, 199), // Same as ElevatedButton default
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: DropdownButton<ResultKind>(
-              value: selectedResult,
-              isDense: true,
-              icon: const Icon(Icons.arrow_drop_down, size: 25), // Reset icon
-              hint: SelText(selectedResult.name),
-              onChanged: (ResultKind? newValue) async {
-                if (newValue == null) return;
-                selectedResult = newValue;
-
-                aLogic.setState(() {});
-
-                // Set loading state and execute async operations
-                aLogic.isLoading = true;
-                try {
-                  switch (newValue) {
-                    case ResultKind.reset:
-                      await aLogic.reset();
-                      break;
-                    case ResultKind.independenceOfProbability:
-                      await aLogic.resetIP();
-                      break;
-                    case ResultKind.bayesConfirmationTheory:
-                      await aLogic.resetBCT();
-                      break;
-                    case ResultKind.raven:
-                      await aLogic.resetRaven();
-                      break;
-                    case ResultKind.lotteryAndMiracles:
-                      await aLogic.resetMiracle();
-                      break;
-                  }
-                } finally {
-                  aLogic.isLoading = false;
-                  aLogic.setState(() {});
-                }
-              },
-              items: ddMenuItemList,
-            ),
-          ),
-        ),
-      ),
+      SizedBox(height: 14), // Space between buttons
       if (!eq(prSum, (1, 1)))
         Container(
           height: 30,
